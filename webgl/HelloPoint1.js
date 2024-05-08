@@ -1,20 +1,23 @@
-// HelloPoint1.js
-// Vertex shader program
+// HelloPoint1.js with embeded shader programs
+
+
+// Vertex shader program ( Written in GLSL ES ) 
 var VSHADER_SOURCE =
     'void main() {\n' +
-    ' gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n' + // Coordinates
-    ' gl_PointSize = 10.0;\n' + // Set the point size
-    '}\n';
-// Fragment shader program
-var FSHADER_SOURCE =
-    'void main() {\n' +
-    ' gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n' + // Set the color
+    ' gl_Position = vec4(0.0, 0.0, 0.0, 1.0);\n' +
+    ' gl_PointSize = 10.0;\n' +
     '}\n';
 
+// Fragment shader program ( Written in GLSL ES )
+var FSHADER_SOURCE =
+    'void main() {\n' +
+    ' gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n'
+    '}\n';
+
+// Main function ( Written in JavaScript )
 function main() {
 
     var canvas = document.getElementById('webgl');
-
 
     var gl = getWebGLContext(canvas);
     if (!gl) {

@@ -12,10 +12,13 @@ var VSHADER_SOURCE =
 // Fragment shader program
 var FSHADER_SOURCE =
     'precision mediump float;\n' +
-    'uniform sampler2D u_Sampler;\n' +
+    'uniform sampler2D u_Sampler0;\n' +
+    'uniform sampler2D u_Sampler1;\n' +
     'varying vec2 v_TexCoord;\n' +
     'void main() {\n' +
-    '  gl_FragColor = texture2D(u_Sampler, v_TexCoord);\n' +
+    '  vec4 color0 = texture2D(u_Sampler0, v_TexCoord);\n' +
+    '  vec4 color1 = texture2D(u_Sampler1, v_TexCoord);\n' +
+    '  gl_FragColor = color0 * color1;\n' +
     '}\n';
 
 function main() {
@@ -30,10 +33,10 @@ function main() {
 
 function initVertexBuffers(gl) {
     var verticesTexCoords = new Float32Array([
-        -0.5, 0.5, -0.3, 1.7,
-        -0.5, -0.5, -0.3, -0.2,
-        0.5, 0.5, 1.7, 1.7,
-        0.5, -0.5, 1.7, -0.2,
+        -0.5, 0.5, 0.0, 1.0,
+        -0.5, -0.5, 0.0, 0.0,
+        0.5, 0.5, 1.0, 1.0,
+        0.5, -0.5, 1.0, 0.0,
     ]);
     var n = 4;
 
@@ -58,10 +61,17 @@ function initVertexBuffers(gl) {
 }
 
 function initTextures(gl, n) {
-    var texture = gl.createTexture();
-    var u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
-    var image = new Image();
-    image.onload = function () { loadTexture(gl, n, texture, u_Sampler, image); };
+    var texture0 = gl.createTexture();
+    var texture1 = gl.createTexture();
+
+    var u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
+    var u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+    
+    var image0 = new Image();
+    var image1 = new Image();
+    
+    image0.onload = function () { loadTexture(gl, n, texture0, u_Sampler0, image0); };
+    image1.onload = function () { loadTexture(gl, n, texture1, u_Sampler1, image1); };
     image.src = '../resources/train.jpg';
 
     return true;

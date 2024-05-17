@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>City</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #333;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    #menu {
+      text-align: center;
+    }
+
+    #menu button {
+      display: block;
+      width: 200px;
+      margin: 6px auto;
+      padding: 6px;
+      font-size: 16px;
+      color: #333;
+      background-color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #menu button:hover {
+      background-color: #ddd;
+      color: #000;
+    }
+
+    #menu div {
+      margin: 20px 0;
+      font-size: 18px;
+    }
+
+    canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body onload="main()">
+
+
+  <div id="menu">
+    <div>Chapter 2: First Steps with WebGL</div>
+    <button onclick="window.location.href='./ch2/HelloPoint1.html'">Point on Canvas</button>
+    <button onclick="window.location.href='./ch2/HelloPoint2.html'">Point on Canvas 2</button>
+    <button onclick="window.location.href='./ch2/ClickedPoint.html'">Click Points</button>
+    <button onclick="window.location.href='./ch2/ColoredPoint.html'">Click Points with Color</button>
+    <button onclick="window.location.href='./ch2/MultiPoints.html'">Triangle</button>
+  </div>
+  <div id="menu">
+    <div>Chapter 3: Drawing and Transforming Triangles</div>
+    <button onclick="window.location.href='./ch3/HelloTriangle.html'">Draw Triangle</button>
+    <button onclick="window.location.href='./ch3/DrawRectangle.html'">Draw Rectangle</button>
+    <button onclick="window.location.href='./ch3/HelloQuad.html'">Draw Rectangle 2</button>
+    <button onclick="window.location.href='./ch3/RotatedTriangle.html'">Rotated Triangle</button>
+    <button onclick="window.location.href='./ch3/RotatedTriangle_Matrix.html'">Rotated Triangle: Matrix</button>
+    <button onclick="window.location.href='./ch3/TranslatedTriangle.html'">Translated Triangle</button>
+  </div>
+  <div id="menu">
+    <div>Chapter 4: Basic Animations</div>
+    <button onclick="window.location.href='./ch4/RotatingTriangle.html'">Rotating Triangle </button>
+    <button onclick="window.location.href='./ch4/RotatedTriangle_Matrix4.html'">Rotated Triangle: 4 Matrix </button>
+    <button onclick="window.location.href='./ch4/RotatingTriangleWithButtons.html'">Rotated Triangle with Buttons </button>
+  </div>
+  <div id="menu">
+    <div>Chapter 5: Color and Textures </div>
+    <button onclick="window.location.href='./ch5/MultiAttributeColor.html'">Multi Attribute Color</button>
+    <button onclick="window.location.href='./ch5/MultiAttributeSize.html'">Multi Attribute Size</button>
+    <button onclick="window.location.href='./ch5/MultiAttributeSize_Interleaved.html'">Multi Attribute Size Interleaved</button>
+    <button onclick="window.location.href='./ch5/TexturedQuad.html'">Textured Quad</button>
+    <button onclick="window.location.href='./ch5/MultiTexture.html'">Multi Texture</button>
+  </div>
+  <div id="menu">
+    <div>Chapter 7: Towards the 3d World</div>
+    <button onclick="window.location.href='./ch7/LookAtTriangles.html'">Triangles</button>
+    <button onclick="window.location.href='./ch7/LookAtRotatedTriangles.html'">Rotated Triangles</button>
+    <button onclick="window.location.href='./ch7/DepthBuffer.html'">Triangles: Depth Buffer</button>
+    <button onclick="window.location.href='./ch7/OrthoView.html'">Triangles: Ortho View</button>
+    <button onclick="window.location.href='./ch7/PerspectiveView.html'">Triangles: Perspective</button>
+    <button onclick="window.location.href='./ch7/LookAtRotatedTriangles_mvMatrix.html'">Rotated Triangles: MV Matrix</button>
+    <button onclick="window.location.href='./ch7/ColoredCube.html'">Colored Face Cube</button>
+    <button onclick="window.location.href='./ch7/HelloCube.html'">Hue Cube</button>
+    <button onclick="window.location.href='./ch7/PerspectiveView_mvp.html'">Triangles: MVP Matrix</button>
+    <button onclick="window.location.href='./ch7/Zfighting.html'">Triangles: Z Fighting</button>
+  </div>
+  <div id="menu">  
+    <div>Chapter 8: Advanced WebGL</div>
+    <button onclick="window.location.href='./ch8/LightedCube.html'">Lighted Cube</button>
+    <button onclick="window.location.href='./ch8/LTRcube.html'">Lit, Transformed Cube</button>
+    <button onclick="window.location.href='./ch8/LightedCube_ambient.html'">Ambient Light</button>
+    <button onclick="window.location.href='./ch8/PointLightedCube.html'">Point Lighted Cube</button>
+    <button onclick="window.location.href='./ch8/PointLightedCube_frag.html'">Point Lighting in Fragment Shader</button>
+  </div>
+
+
+
+  <canvas id="webgl" width="1280" height="720">
+    Please use a browser that supports "canvas"
+  </canvas>
+
+  <script>
+    function main() {
+      console.log("Main function called."); // Debugging line
+      // Initialization code can go here
+    }
+  </script>
+</body>
+</html>

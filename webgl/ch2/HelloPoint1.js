@@ -11,7 +11,7 @@ var VSHADER_SOURCE =
 // Fragment shader program ( Written in GLSL ES )
 var FSHADER_SOURCE =
     'void main() {\n' +
-    ' gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n'
+    ' gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n' + 
     '}\n';
 
 // Main function ( Written in JavaScript )

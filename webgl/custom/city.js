@@ -221,3 +221,17 @@ function animate(angle) {
   var newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0;
   return newAngle %= 360;
 }
+
+// generate a 100x100 grid of squares with a 1 unit gap between them
+function streetGrid(){
+  var vertices = [];
+  for(var i = 0; i < 100; i++){
+    for(var j = 0; j < 100; j++){
+      vertices.push(i, 0, j);
+      vertices.push(i+1, 0, j);
+      vertices.push(i+1, 0, j+1);
+      vertices.push(i, 0, j+1);
+    }
+  }
+  return vertices;
+}

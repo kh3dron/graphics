@@ -14,7 +14,8 @@
       background-color: #000; /* Light grey background */
     }
 
-    canvas {
+    /* for canvases with id webgl */
+    #webgl {
       display: block;
       width: 800;
       height: 800;
@@ -24,9 +25,11 @@
   </style>
 </head>
 <body onload="main()">
-  <canvas id="webgl" width="1280" height="720">
+  <canvas id="webgl" width="1280" height="720" style="position: absolute; z-index: 0;">
     Please use a browser that supports "canvas"
   </canvas>
+  <canvas id="hud" width="1280" height="720" style="position: absolute; z-index: 1;">
+    Please use a browser that supports "canvas"
 
   <script src="../../lib/webgl-utils.js"></script>
   <script src="../../lib/webgl-debug.js"></script>

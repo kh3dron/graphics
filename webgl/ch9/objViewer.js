@@ -33,9 +33,14 @@ var FSHADER_SOURCE =
 function main() {
   // Retrieve <canvas> element
   var canvas = document.getElementById('webgl');
+  var hud = document.getElementById('hud');
 
   // Get the rendering context for WebGL
   var gl = getWebGLContext(canvas);
+  var ctx = hud.getContext('2d');
+
+  hud.onmousedown = function (ev) { click(ev, gl, canvas, hud, ctx); };
+
   if (!gl) {
     console.log('Failed to get the rendering context for WebGL');
     return;
@@ -90,6 +95,7 @@ function main() {
   var tick = function () {   // Start drawing
     currentAngle = animate(currentAngle); // Update current rotation angle
     draw(gl, gl.program, currentAngle, viewProjMatrix, model);
+    draw2d(ctx, currentAngle);
     requestAnimationFrame(tick, canvas);
   };
   tick();
@@ -686,4 +692,14 @@ function calcNormal(p0, p1, p2) {
   var v = new Vector3(c);
   v.normalize();
   return v.elements;
+}
+
+function draw2d(ctx, currentAngle) {
+  ctx.clearRect(0, 0, 400, 400); // Clear <hud>
+  // Draw triangle with white lines
+
+  ctx.font = '18px "Times New Roman"';
+  ctx.fillStyle = 'rgba(0, 255, 0, 1)'; // Set white to the color of letters
+  ctx.fillText('Current Angle: '+ Math.floor(currentAngle), 40, 40); 
+  ctx.fillText('WASD to walk', 40, 60); 
 }

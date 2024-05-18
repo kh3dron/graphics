@@ -37,7 +37,6 @@ function main() {
   var gl = getWebGLContext(canvas);
   var ctx = hud.getContext('2d');
 
-
   initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)
 
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -68,16 +67,27 @@ function main() {
   // Start reading the OBJ file
   readOBJFile('../resources/torus.obj', gl, model, 60, true);
 
-  var currentAngle = 0.0; // Current rotation angle [degree]
-  var tick = function () {   // Start drawing
-    currentAngle = animate(currentAngle); // Update current rotation angle
-    draw(gl, gl.program, currentAngle, viewProjMatrix, model);
-    draw2d(ctx, currentAngle); // HUD drawing
+  // Variables to store position
+  var posX = 0.0, posY = 0.0;
+
+  // Handle key press events
+  window.addEventListener('keydown', function (ev) {
+    switch (ev.key) {
+      case 'ArrowUp': posY += 10.0; break;
+      case 'ArrowDown': posY -= 10.0; break;
+      case 'ArrowLeft': posX -= 10.0; break;
+      case 'ArrowRight': posX += 10.0; break;
+      default: return;
+    }
+  });
+
+  var tick = function () {
+    draw(gl, gl.program, posX, posY, viewProjMatrix, model);
+    draw2d(ctx, posX, posY); // HUD drawing
     requestAnimationFrame(tick, canvas);
   };
   tick();
 }
-
 
 // Create an buffer object and perform an initial configuration
 function initVertexBuffers(gl, program) {
@@ -104,12 +114,13 @@ function createEmptyArrayBuffer(gl, a_attribute, num, type) {
   return buffer;
 }
 
-function draw2d(ctx, currentAngle) {
+function draw2d(ctx, posX, posY) {
   ctx.clearRect(0, 0, 400, 400); // Clear <hud>
   ctx.font = '18px "Times New Roman"';
   ctx.fillStyle = 'rgba(0, 255, 0, 1)'; // Set white to the color of letters
-  ctx.fillText('Current Angle: ' + Math.floor(currentAngle), 40, 40);
-  ctx.fillText('WASD to walk', 40, 60);
+  ctx.fillText('Position X: ' + Math.floor(posX), 40, 40);
+  ctx.fillText('Position Y: ' + Math.floor(posY), 40, 60);
+  ctx.fillText('Arrow keys to move', 40, 80);
 }
 
 // Coordinate transformation matrix
@@ -117,17 +128,16 @@ var g_modelMatrix = new Matrix4();
 var g_mvpMatrix = new Matrix4();
 var g_normalMatrix = new Matrix4();
 
-// æç”»é–¢æ•°
-function draw(gl, program, angle, viewProjMatrix, model) {
+function draw(gl, program, posX, posY, viewProjMatrix, model) {
   if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
     g_drawingInfo = onReadComplete(gl, model, g_objDoc);
     g_objDoc = null;
   }
-  if (!g_drawingInfo) return;   // ãƒ¢ãƒ‡ãƒ«ã‚’èª­ã¿è¾¼ã¿æ¸ˆã¿ã‹åˆ¤å®š
+  if (!g_drawingInfo) return;
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);  // Clear color and depth buffers
 
-  g_modelMatrix.setRotate(angle, 1.0, 0.0, 0.0); // é©å½“ã«å›žè»¢
+  g_modelMatrix.setTranslate(posX, posY, 0.0); // Set position
 
   // Calculate the normal transformation matrix and pass it to u_NormalMatrix
   g_normalMatrix.setInverseOf(g_modelMatrix);
@@ -140,5 +150,5 @@ function draw(gl, program, angle, viewProjMatrix, model) {
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 
   // Draw
-  gl.drawElements(gl.LINES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
 }

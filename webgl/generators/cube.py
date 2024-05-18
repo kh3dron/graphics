@@ -2,18 +2,22 @@
 
 import sys
 import os
+import random
 
 def cube(size):
     # generate the 8 vertices of the cube
+    r = 1
+    g = 0
+    b = 0
     vertices = [
-        (size, size, size),
-        (size, size, -size),
-        (size, -size, size),
-        (size, -size, -size),
-        (-size, size, size),
-        (-size, size, -size),
-        (-size, -size, size),
-        (-size, -size, -size)
+        (size, size, size, r, g, b),
+        (size, size, -size, r, g, b),
+        (size, -size, size, r, g, b),
+        (size, -size, -size, r, g, b),
+        (-size, size, size, r, g, b),
+        (-size, size, -size, r, g, b),
+        (-size, -size, size, r, g, b),
+        (-size, -size, -size, r, g, b)
     ]
 
     # generate the 6 faces of the cube
@@ -40,17 +44,10 @@ def cube(size):
         f.write("o cube\n")
 
         for v in vertices:
-            f.write("v {} {} {}\n".format(v[0], v[1], v[2]))
+            f.write("v {} {} {} {} {} {} \n".format(v[0], v[1], v[2], v[3], v[4], v[5]))
 
         # write the faces to the .obj file
         for face in faces:
             f.write("f {} {} {} {}\n".format(face[0] + 1, face[1] + 1, face[2] + 1, face[3] + 1))
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python cube.py <size>")
-        sys.exit(1)
-
-    size = float(sys.argv[1])
-    cube(size)
-    print("cube.obj generated with size {}".format(size))
+cube(1.0)

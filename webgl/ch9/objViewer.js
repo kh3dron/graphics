@@ -1,18 +1,23 @@
 // OBJViewer.js (c) 2012 matsuda and itami
 // Vertex shader program
-var VSHADER_SOURCE = 
+var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
   'attribute vec4 a_Color;\n' +
   'attribute vec4 a_Normal;\n' +
   'uniform mat4 u_MvpMatrix;\n' +
   'uniform mat4 u_NormalMatrix;\n' +
+  'uniform vec3 u_LightColor;\n' +     // Light color
+  'uniform vec3 u_AmbientLight;\n' +   // Ambient light color
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
   '  vec3 lightDirection = vec3(-0.35, 0.35, 0.87);\n' +
   '  gl_Position = u_MvpMatrix * a_Position;\n' +
   '  vec3 normal = normalize(vec3(u_NormalMatrix * a_Normal));\n' +
+  '  vec3 lightColor = vec3(1.0, 1.0, 1.0);\n' +
   '  float nDotL = max(dot(normal, lightDirection), 0.0);\n' +
-  '  v_Color = vec4(a_Color.rgb * nDotL, a_Color.a);\n' +
+  '  vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;\n' +
+  '  vec3 ambient = u_AmbientLight * a_Color.rgb;\n' +
+  '  v_Color = vec4(diffuse + ambient, a_Color.a);\n' +
   '}\n';
 
 // Fragment shader program
@@ -43,7 +48,7 @@ function main() {
   }
 
   // Set the clear color and enable the depth test
-  gl.clearColor(0.2, 0.2, 0.2, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.enable(gl.DEPTH_TEST);
 
   // Get the storage locations of attribute and uniform variables
@@ -51,12 +56,14 @@ function main() {
   program.a_Position = gl.getAttribLocation(program, 'a_Position');
   program.a_Normal = gl.getAttribLocation(program, 'a_Normal');
   program.a_Color = gl.getAttribLocation(program, 'a_Color');
+  program.u_LightColor = gl.getUniformLocation(program, 'u_LightColor');
+  program.u_AmbientLight = gl.getUniformLocation(program, 'u_AmbientLight');
   program.u_MvpMatrix = gl.getUniformLocation(program, 'u_MvpMatrix');
   program.u_NormalMatrix = gl.getUniformLocation(program, 'u_NormalMatrix');
 
-  if (program.a_Position < 0 ||  program.a_Normal < 0 || program.a_Color < 0 ||
-      !program.u_MvpMatrix || !program.u_NormalMatrix) {
-    console.log('attribute, uniformå¤‰æ•°ã®æ ¼ç´å ´æ‰€ã®å–å¾—ã«å¤±æ•—'); 
+  if (program.a_Position < 0 || program.a_Normal < 0 || program.a_Color < 0 ||
+    !program.u_MvpMatrix || !program.u_NormalMatrix) {
+    console.log('Failed to get the storage location of attribute or uniform variable');
     return;
   }
 
@@ -67,16 +74,20 @@ function main() {
     return;
   }
 
-  // ãƒ“ãƒ¥ãƒ¼æŠ•å½±è¡Œåˆ—ã‚’è¨ˆç®—
+  // View projection matrix
   var viewProjMatrix = new Matrix4();
-  viewProjMatrix.setPerspective(30.0, canvas.width/canvas.height, 1.0, 5000.0);
+  viewProjMatrix.setPerspective(30.0, canvas.width / canvas.height, 1.0, 5000.0);
   viewProjMatrix.lookAt(0.0, 500.0, 200.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
+  // Set light color and ambient light color
+  gl.uniform3f(program.u_LightColor, 1.0, 1.0, 1.0);
+  gl.uniform3f(program.u_AmbientLight, 0.2, 0.2, 0.2); // Set the ambient light
+
   // Start reading the OBJ file
-  readOBJFile('../resources/cube.obj', gl, model, 60, true);
+  readOBJFile('../resources/torus.obj', gl, model, 60, true);
 
   var currentAngle = 0.0; // Current rotation angle [degree]
-  var tick = function() {   // Start drawing
+  var tick = function () {   // Start drawing
     currentAngle = animate(currentAngle); // Update current rotation angle
     draw(gl, gl.program, currentAngle, viewProjMatrix, model);
     requestAnimationFrame(tick, canvas);
@@ -84,10 +95,11 @@ function main() {
   tick();
 }
 
+
 // Create an buffer object and perform an initial configuration
 function initVertexBuffers(gl, program) {
   var o = new Object(); // Utilize Object object to return multiple buffer objects
-  o.vertexBuffer = createEmptyArrayBuffer(gl, program.a_Position, 3, gl.FLOAT); 
+  o.vertexBuffer = createEmptyArrayBuffer(gl, program.a_Position, 3, gl.FLOAT);
   o.normalBuffer = createEmptyArrayBuffer(gl, program.a_Normal, 3, gl.FLOAT);
   o.colorBuffer = createEmptyArrayBuffer(gl, program.a_Color, 4, gl.FLOAT);
   o.indexBuffer = gl.createBuffer();
@@ -100,7 +112,7 @@ function initVertexBuffers(gl, program) {
 
 // Create a buffer object, assign it to attribute variables, and enable the assignment
 function createEmptyArrayBuffer(gl, a_attribute, num, type) {
-  var buffer =  gl.createBuffer();  // Create a buffer object
+  var buffer = gl.createBuffer();  // Create a buffer object
   if (!buffer) {
     console.log('Failed to create the buffer object');
     return null;
@@ -116,7 +128,7 @@ function createEmptyArrayBuffer(gl, a_attribute, num, type) {
 function readOBJFile(fileName, gl, model, scale, reverse) {
   var request = new XMLHttpRequest();
 
-  request.onreadystatechange = function() {
+  request.onreadystatechange = function () {
     if (request.readyState === 4 && request.status !== 404) {
       onReadOBJFile(request.responseText, fileName, gl, model, scale, reverse);
     }
@@ -147,7 +159,7 @@ var g_normalMatrix = new Matrix4();
 
 // æç”»é–¢æ•°
 function draw(gl, program, angle, viewProjMatrix, model) {
-  if (g_objDoc != null && g_objDoc.isMTLComplete()){ // OBJ and all MTLs are available
+  if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
     g_drawingInfo = onReadComplete(gl, model, g_objDoc);
     g_objDoc = null;
   }
@@ -156,8 +168,6 @@ function draw(gl, program, angle, viewProjMatrix, model) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);  // Clear color and depth buffers
 
   g_modelMatrix.setRotate(angle, 1.0, 0.0, 0.0); // é©å½“ã«å›žè»¢
-  g_modelMatrix.rotate(angle, 0.0, 1.0, 0.0);
-  g_modelMatrix.rotate(angle, 0.0, 0.0, 1.0);
 
   // Calculate the normal transformation matrix and pass it to u_NormalMatrix
   g_normalMatrix.setInverseOf(g_modelMatrix);
@@ -170,7 +180,7 @@ function draw(gl, program, angle, viewProjMatrix, model) {
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 
   // Draw
-  gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.LINES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
 // OBJ File has been read compreatly
@@ -184,10 +194,10 @@ function onReadComplete(gl, model, objDoc) {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, drawingInfo.normals, gl.STATIC_DRAW);
-  
+
   gl.bindBuffer(gl.ARRAY_BUFFER, model.colorBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, drawingInfo.colors, gl.STATIC_DRAW);
-  
+
   // Write the indices to the buffer object
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, drawingInfo.indices, gl.STATIC_DRAW);
@@ -213,7 +223,7 @@ function animate(angle) {
 
 // OBJDoc object
 // Constructor
-var OBJDoc = function(fileName) {
+var OBJDoc = function (fileName) {
   this.fileName = fileName;
   this.mtls = new Array(0);      // Initialize the property for MTL
   this.objects = new Array(0);   // Initialize the property for Object
@@ -222,116 +232,116 @@ var OBJDoc = function(fileName) {
 }
 
 // Parsing the OBJ file
-OBJDoc.prototype.parse = function(fileString, scale, reverse) {
+OBJDoc.prototype.parse = function (fileString, scale, reverse) {
   var lines = fileString.split('\n');  // Break up into lines and store them as array
   lines.push(null); // Append null
   var index = 0;    // Initialize index of line
 
   var currentObject = null;
   var currentMaterialName = "";
-  
+
   // Parse line by line
   var line;         // A string in the line to be parsed
   var sp = new StringParser();  // Create StringParser
   while ((line = lines[index++]) != null) {
     sp.init(line);                  // init StringParser
-	var command = sp.getWord();     // Get command
-	if(command == null)	 continue;  // check null command
+    var command = sp.getWord();     // Get command
+    if (command == null) continue;  // check null command
 
-    switch(command){
-    case '#':
-      continue;  // Skip comments
-    case 'mtllib':     // Read Material chunk
-      var path = this.parseMtllib(sp, this.fileName);
-      var mtl = new MTLDoc();   // Create MTL instance
-      this.mtls.push(mtl);
-      var request = new XMLHttpRequest();
-      request.onreadystatechange = function() {
-        if (request.readyState == 4) {
-          if (request.status != 404) {
-            onReadMTLFile(request.responseText, mtl);
-          }else{
-            mtl.complete = true;
+    switch (command) {
+      case '#':
+        continue;  // Skip comments
+      case 'mtllib':     // Read Material chunk
+        var path = this.parseMtllib(sp, this.fileName);
+        var mtl = new MTLDoc();   // Create MTL instance
+        this.mtls.push(mtl);
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+          if (request.readyState == 4) {
+            if (request.status != 404) {
+              onReadMTLFile(request.responseText, mtl);
+            } else {
+              mtl.complete = true;
+            }
           }
         }
-      }
-      request.open('GET', path, true);  // Create a request to acquire the file
-      request.send();                   // Send the request
-      continue; // Go to the next line
-    case 'o':
-    case 'g':   // Read Object name
-      var object = this.parseObjectName(sp);
-      this.objects.push(object);
-      currentObject = object;
-      continue; // Go to the next line
-    case 'v':   // Read vertex
-      var vertex = this.parseVertex(sp, scale);
-      this.vertices.push(vertex); 
-      continue; // Go to the next line
-    case 'vn':   // Read normal
-      var normal = this.parseNormal(sp);
-      this.normals.push(normal); 
-      continue; // Go to the next line
-    case 'usemtl': // Read Material name
-      currentMaterialName = this.parseUsemtl(sp);
-      continue; // Go to the next line
-    case 'f': // Read face
-      var face = this.parseFace(sp, currentMaterialName, this.vertices, reverse);
-      currentObject.addFace(face);
-      continue; // Go to the next line
+        request.open('GET', path, true);  // Create a request to acquire the file
+        request.send();                   // Send the request
+        continue; // Go to the next line
+      case 'o':
+      case 'g':   // Read Object name
+        var object = this.parseObjectName(sp);
+        this.objects.push(object);
+        currentObject = object;
+        continue; // Go to the next line
+      case 'v':   // Read vertex
+        var vertex = this.parseVertex(sp, scale);
+        this.vertices.push(vertex);
+        continue; // Go to the next line
+      case 'vn':   // Read normal
+        var normal = this.parseNormal(sp);
+        this.normals.push(normal);
+        continue; // Go to the next line
+      case 'usemtl': // Read Material name
+        currentMaterialName = this.parseUsemtl(sp);
+        continue; // Go to the next line
+      case 'f': // Read face
+        var face = this.parseFace(sp, currentMaterialName, this.vertices, reverse);
+        currentObject.addFace(face);
+        continue; // Go to the next line
     }
   }
 
   return true;
 }
 
-OBJDoc.prototype.parseMtllib = function(sp, fileName) {
+OBJDoc.prototype.parseMtllib = function (sp, fileName) {
   // Get directory path
   var i = fileName.lastIndexOf("/");
   var dirPath = "";
-  if(i > 0) dirPath = fileName.substr(0, i+1);
+  if (i > 0) dirPath = fileName.substr(0, i + 1);
 
   return dirPath + sp.getWord();   // Get path
 }
 
-OBJDoc.prototype.parseObjectName = function(sp) {
+OBJDoc.prototype.parseObjectName = function (sp) {
   var name = sp.getWord();
   return (new OBJObject(name));
 }
 
-OBJDoc.prototype.parseVertex = function(sp, scale) {
+OBJDoc.prototype.parseVertex = function (sp, scale) {
   var x = sp.getFloat() * scale;
   var y = sp.getFloat() * scale;
   var z = sp.getFloat() * scale;
   return (new Vertex(x, y, z));
 }
 
-OBJDoc.prototype.parseNormal = function(sp) {
+OBJDoc.prototype.parseNormal = function (sp) {
   var x = sp.getFloat();
   var y = sp.getFloat();
   var z = sp.getFloat();
   return (new Normal(x, y, z));
 }
 
-OBJDoc.prototype.parseUsemtl = function(sp) {
+OBJDoc.prototype.parseUsemtl = function (sp) {
   return sp.getWord();
 }
 
-OBJDoc.prototype.parseFace = function(sp, materialName, vertices, reverse) {  
+OBJDoc.prototype.parseFace = function (sp, materialName, vertices, reverse) {
   var face = new Face(materialName);
   // get indices
-  for(;;){
+  for (; ;) {
     var word = sp.getWord();
-    if(word == null) break;
+    if (word == null) break;
     var subWords = word.split('/');
-    if(subWords.length >= 1){
+    if (subWords.length >= 1) {
       var vi = parseInt(subWords[0]) - 1;
       face.vIndices.push(vi);
     }
-    if(subWords.length >= 3){
+    if (subWords.length >= 3) {
       var ni = parseInt(subWords[2]) - 1;
       face.nIndices.push(ni);
-    }else{
+    } else {
       face.nIndices.push(-1);
     }
   }
@@ -361,11 +371,11 @@ OBJDoc.prototype.parseFace = function(sp, materialName, vertices, reverse) {
         vertices[face.vIndices[3]].z];
       normal = calcNormal(v1, v2, v3);
     }
-    if(normal == null){         // æ³•ç·šãŒæ±‚ã‚ã‚‰ã‚Œãªã‹ã£ãŸã®ã§Yè»¸æ–¹å‘ã®æ³•ç·šã¨ã™ã‚‹
+    if (normal == null) {         // æ³•ç·šãŒæ±‚ã‚ã‚‰ã‚Œãªã‹ã£ãŸã®ã§Yè»¸æ–¹å‘ã®æ³•ç·šã¨ã™ã‚‹
       normal = [0.0, 1.0, 0.0];
     }
   }
-  if(reverse){
+  if (reverse) {
     normal[0] = -normal[0];
     normal[1] = -normal[1];
     normal[2] = -normal[2];
@@ -373,11 +383,11 @@ OBJDoc.prototype.parseFace = function(sp, materialName, vertices, reverse) {
   face.normal = new Normal(normal[0], normal[1], normal[2]);
 
   // Devide to triangles if face contains over 3 points.
-  if(face.vIndices.length > 3){
+  if (face.vIndices.length > 3) {
     var n = face.vIndices.length - 2;
     var newVIndices = new Array(n * 3);
     var newNIndices = new Array(n * 3);
-    for(var i=0; i<n; i++){
+    for (var i = 0; i < n; i++) {
       newVIndices[i * 3 + 0] = face.vIndices[0];
       newVIndices[i * 3 + 1] = face.vIndices[i + 1];
       newVIndices[i * 3 + 2] = face.vIndices[i + 2];
@@ -406,52 +416,52 @@ function onReadMTLFile(fileString, mtl) {
   while ((line = lines[index++]) != null) {
     sp.init(line);                  // init StringParser
     var command = sp.getWord();     // Get command
-    if(command == null)	 continue;  // check null command
+    if (command == null) continue;  // check null command
 
-    switch(command){
-    case '#':
-      continue;    // Skip comments
-    case 'newmtl': // Read Material chunk
-      name = mtl.parseNewmtl(sp);    // Get name
-      continue; // Go to the next line
-    case 'Kd':   // Read normal
-      if(name == "") continue; // Go to the next line because of Error
-      var material = mtl.parseRGB(sp, name);
-      mtl.materials.push(material);
-      name = "";
-      continue; // Go to the next line
+    switch (command) {
+      case '#':
+        continue;    // Skip comments
+      case 'newmtl': // Read Material chunk
+        name = mtl.parseNewmtl(sp);    // Get name
+        continue; // Go to the next line
+      case 'Kd':   // Read normal
+        if (name == "") continue; // Go to the next line because of Error
+        var material = mtl.parseRGB(sp, name);
+        mtl.materials.push(material);
+        name = "";
+        continue; // Go to the next line
     }
   }
   mtl.complete = true;
 }
 
 // Check Materials
-OBJDoc.prototype.isMTLComplete = function() {
-  if(this.mtls.length == 0) return true;
-  for(var i = 0; i < this.mtls.length; i++){
-    if(!this.mtls[i].complete) return false;
+OBJDoc.prototype.isMTLComplete = function () {
+  if (this.mtls.length == 0) return true;
+  for (var i = 0; i < this.mtls.length; i++) {
+    if (!this.mtls[i].complete) return false;
   }
   return true;
 }
 
 // Find color by material name
-OBJDoc.prototype.findColor = function(name){
-  for(var i = 0; i < this.mtls.length; i++){
-    for(var j = 0; j < this.mtls[i].materials.length; j++){
-      if(this.mtls[i].materials[j].name == name){
-        return(this.mtls[i].materials[j].color)
+OBJDoc.prototype.findColor = function (name) {
+  for (var i = 0; i < this.mtls.length; i++) {
+    for (var j = 0; j < this.mtls[i].materials.length; j++) {
+      if (this.mtls[i].materials[j].name == name) {
+        return (this.mtls[i].materials[j].color)
       }
     }
   }
-  return(new Color(0.8, 0.8, 0.8, 1));
+  return (new Color(0.0, 1.0, 0.0, 1));
 }
 
 //------------------------------------------------------------------------------
 // Retrieve the information for drawing 3D model
-OBJDoc.prototype.getDrawingInfo = function() {
+OBJDoc.prototype.getDrawingInfo = function () {
   // Create an arrays for vertex coordinates, normals, colors, and indices
   var numIndices = 0;
-  for(var i = 0; i < this.objects.length; i++){
+  for (var i = 0; i < this.objects.length; i++) {
     numIndices += this.objects[i].numIndices;
   }
   var numVertices = numIndices;
@@ -462,13 +472,13 @@ OBJDoc.prototype.getDrawingInfo = function() {
 
   // Set vertex, normal and color
   var index_indices = 0;
-  for(var i = 0; i < this.objects.length; i++){
+  for (var i = 0; i < this.objects.length; i++) {
     var object = this.objects[i];
-    for(var j = 0; j < object.faces.length; j++){
+    for (var j = 0; j < object.faces.length; j++) {
       var face = object.faces[j];
       var color = this.findColor(face.materialName);
       var faceNormal = face.normal;
-      for(var k = 0; k < face.vIndices.length; k++){
+      for (var k = 0; k < face.vIndices.length; k++) {
         // Set index
         indices[index_indices] = index_indices;
         // Copy vertex
@@ -484,17 +494,17 @@ OBJDoc.prototype.getDrawingInfo = function() {
         colors[index_indices * 4 + 3] = color.a;
         // Copy normal
         var nIdx = face.nIndices[k];
-        if(nIdx >= 0){
+        if (nIdx >= 0) {
           var normal = this.normals[nIdx];
           normals[index_indices * 3 + 0] = normal.x;
           normals[index_indices * 3 + 1] = normal.y;
           normals[index_indices * 3 + 2] = normal.z;
-        }else{
+        } else {
           normals[index_indices * 3 + 0] = faceNormal.x;
           normals[index_indices * 3 + 1] = faceNormal.y;
           normals[index_indices * 3 + 2] = faceNormal.z;
         }
-        index_indices ++;
+        index_indices++;
       }
     }
   }
@@ -505,16 +515,16 @@ OBJDoc.prototype.getDrawingInfo = function() {
 //------------------------------------------------------------------------------
 // MTLDoc Object
 //------------------------------------------------------------------------------
-var MTLDoc = function() {
+var MTLDoc = function () {
   this.complete = false; // MTL is configured correctly
   this.materials = new Array(0);
 }
 
-MTLDoc.prototype.parseNewmtl = function(sp) {
+MTLDoc.prototype.parseNewmtl = function (sp) {
   return sp.getWord();         // Get name
 }
 
-MTLDoc.prototype.parseRGB = function(sp, name) {
+MTLDoc.prototype.parseRGB = function (sp, name) {
   var r = sp.getFloat();
   var g = sp.getFloat();
   var b = sp.getFloat();
@@ -524,7 +534,7 @@ MTLDoc.prototype.parseRGB = function(sp, name) {
 //------------------------------------------------------------------------------
 // Material Object
 //------------------------------------------------------------------------------
-var Material = function(name, r, g, b, a) {
+var Material = function (name, r, g, b, a) {
   this.name = name;
   this.color = new Color(r, g, b, a);
 }
@@ -532,7 +542,7 @@ var Material = function(name, r, g, b, a) {
 //------------------------------------------------------------------------------
 // Vertex Object
 //------------------------------------------------------------------------------
-var Vertex = function(x, y, z) {
+var Vertex = function (x, y, z) {
   this.x = x;
   this.y = y;
   this.z = z;
@@ -541,7 +551,7 @@ var Vertex = function(x, y, z) {
 //------------------------------------------------------------------------------
 // Normal Object
 //------------------------------------------------------------------------------
-var Normal = function(x, y, z) {
+var Normal = function (x, y, z) {
   this.x = x;
   this.y = y;
   this.z = z;
@@ -550,7 +560,7 @@ var Normal = function(x, y, z) {
 //------------------------------------------------------------------------------
 // Color Object
 //------------------------------------------------------------------------------
-var Color = function(r, g, b, a) {
+var Color = function (r, g, b, a) {
   this.r = r;
   this.g = g;
   this.b = b;
@@ -560,13 +570,13 @@ var Color = function(r, g, b, a) {
 //------------------------------------------------------------------------------
 // OBJObject Object
 //------------------------------------------------------------------------------
-var OBJObject = function(name) {
+var OBJObject = function (name) {
   this.name = name;
   this.faces = new Array(0);
   this.numIndices = 0;
 }
 
-OBJObject.prototype.addFace = function(face) {
+OBJObject.prototype.addFace = function (face) {
   this.faces.push(face);
   this.numIndices += face.numIndices;
 }
@@ -574,9 +584,9 @@ OBJObject.prototype.addFace = function(face) {
 //------------------------------------------------------------------------------
 // Face Object
 //------------------------------------------------------------------------------
-var Face = function(materialName) {
+var Face = function (materialName) {
   this.materialName = materialName;
-  if(materialName == null)  this.materialName = "";
+  if (materialName == null) this.materialName = "";
   this.vIndices = new Array(0);
   this.nIndices = new Array(0);
 }
@@ -584,7 +594,7 @@ var Face = function(materialName) {
 //------------------------------------------------------------------------------
 // DrawInfo Object
 //------------------------------------------------------------------------------
-var DrawingInfo = function(vertices, normals, colors, indices) {
+var DrawingInfo = function (vertices, normals, colors, indices) {
   this.vertices = vertices;
   this.normals = normals;
   this.colors = colors;
@@ -593,37 +603,37 @@ var DrawingInfo = function(vertices, normals, colors, indices) {
 
 //------------------------------------------------------------------------------
 // Constructor
-var StringParser = function(str) {
+var StringParser = function (str) {
   this.str;   // Store the string specified by the argument
   this.index; // Position in the string to be processed
   this.init(str);
 }
 // Initialize StringParser object
-StringParser.prototype.init = function(str){
+StringParser.prototype.init = function (str) {
   this.str = str;
   this.index = 0;
 }
 
 // Skip delimiters
-StringParser.prototype.skipDelimiters = function()  {
-  for(var i = this.index, len = this.str.length; i < len; i++){
+StringParser.prototype.skipDelimiters = function () {
+  for (var i = this.index, len = this.str.length; i < len; i++) {
     var c = this.str.charAt(i);
     // Skip TAB, Space, '(', ')
-    if (c == '\t'|| c == ' ' || c == '(' || c == ')' || c == '"') continue;
+    if (c == '\t' || c == ' ' || c == '(' || c == ')' || c == '"') continue;
     break;
   }
   this.index = i;
 }
 
 // Skip to the next word
-StringParser.prototype.skipToNextWord = function() {
+StringParser.prototype.skipToNextWord = function () {
   this.skipDelimiters();
   var n = getWordLength(this.str, this.index);
   this.index += (n + 1);
 }
 
 // Get word
-StringParser.prototype.getWord = function() {
+StringParser.prototype.getWord = function () {
   this.skipDelimiters();
   var n = getWordLength(this.str, this.index);
   if (n == 0) return null;
@@ -634,22 +644,22 @@ StringParser.prototype.getWord = function() {
 }
 
 // Get integer
-StringParser.prototype.getInt = function() {
+StringParser.prototype.getInt = function () {
   return parseInt(this.getWord());
 }
 
 // Get floating number
-StringParser.prototype.getFloat = function() {
+StringParser.prototype.getFloat = function () {
   return parseFloat(this.getWord());
 }
 
 // Get the length of word
 function getWordLength(str, start) {
   var n = 0;
-  for(var i = start, len = str.length; i < len; i++){
+  for (var i = start, len = str.length; i < len; i++) {
     var c = str.charAt(i);
-    if (c == '\t'|| c == ' ' || c == '(' || c == ')' || c == '"') 
-	break;
+    if (c == '\t' || c == ' ' || c == '(' || c == ')' || c == '"')
+      break;
   }
   return i - start;
 }
@@ -661,7 +671,7 @@ function calcNormal(p0, p1, p2) {
   // v0: a vector from p1 to p0, v1; a vector from p1 to p2
   var v0 = new Float32Array(3);
   var v1 = new Float32Array(3);
-  for (var i = 0; i < 3; i++){
+  for (var i = 0; i < 3; i++) {
     v0[i] = p0[i] - p1[i];
     v1[i] = p2[i] - p1[i];
   }

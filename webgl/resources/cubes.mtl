@@ -1,2 +1,200 @@
-newmtl richard
-Kd 0.97 0.93 0.32
+newmtl cube-0-0
+Kd 0.27 0.61 0.62
+newmtl cube-0-1
+Kd 0.86 0.98 0.28
+newmtl cube-0-2
+Kd 0.9 0.23 0.21
+newmtl cube-0-3
+Kd 0.41 0.3 0.26
+newmtl cube-0-4
+Kd 0.15 0.19 0.13
+newmtl cube-0-5
+Kd 0.51 0.06 0.04
+newmtl cube-0-6
+Kd 0.13 0.31 0.41
+newmtl cube-0-7
+Kd 0.52 0.17 0.28
+newmtl cube-0-8
+Kd 0.61 0.86 0.13
+newmtl cube-0-9
+Kd 0.76 0.7 0.91
+newmtl cube-1-0
+Kd 0.68 0.69 0.55
+newmtl cube-1-1
+Kd 0.47 0.77 0.08
+newmtl cube-1-2
+Kd 0.22 0.37 0.94
+newmtl cube-1-3
+Kd 0.14 0.16 0.64
+newmtl cube-1-4
+Kd 0.45 0.76 0.88
+newmtl cube-1-5
+Kd 0.63 0.48 0.13
+newmtl cube-1-6
+Kd 0.88 0.53 0.24
+newmtl cube-1-7
+Kd 0.28 0.15 0.45
+newmtl cube-1-8
+Kd 0.31 0.29 0.77
+newmtl cube-1-9
+Kd 0.79 0.33 0.85
+newmtl cube-2-0
+Kd 0.46 0.5 0.68
+newmtl cube-2-1
+Kd 0.68 0.17 0.76
+newmtl cube-2-2
+Kd 0.98 0.85 0.1
+newmtl cube-2-3
+Kd 0.51 0.37 0.2
+newmtl cube-2-4
+Kd 0.7 0.81 0.46
+newmtl cube-2-5
+Kd 0.21 1.0 0.15
+newmtl cube-2-6
+Kd 0.16 0.96 0.35
+newmtl cube-2-7
+Kd 0.67 0.6 0.54
+newmtl cube-2-8
+Kd 0.08 0.71 0.58
+newmtl cube-2-9
+Kd 0.34 0.58 0.3
+newmtl cube-3-0
+Kd 0.55 0.63 0.46
+newmtl cube-3-1
+Kd 0.4 0.46 0.71
+newmtl cube-3-2
+Kd 0.23 0.43 0.66
+newmtl cube-3-3
+Kd 0.22 0.06 0.59
+newmtl cube-3-4
+Kd 0.15 0.89 0.57
+newmtl cube-3-5
+Kd 0.92 0.11 0.25
+newmtl cube-3-6
+Kd 0.59 0.27 0.72
+newmtl cube-3-7
+Kd 0.35 0.58 0.24
+newmtl cube-3-8
+Kd 0.87 0.58 0.34
+newmtl cube-3-9
+Kd 0.99 0.23 0.14
+newmtl cube-4-0
+Kd 0.55 0.86 0.4
+newmtl cube-4-1
+Kd 0.07 0.59 0.86
+newmtl cube-4-2
+Kd 0.47 0.56 0.43
+newmtl cube-4-3
+Kd 0.08 0.1 0.68
+newmtl cube-4-4
+Kd 0.15 0.71 0.16
+newmtl cube-4-5
+Kd 0.53 0.55 0.43
+newmtl cube-4-6
+Kd 0.67 0.74 0.24
+newmtl cube-4-7
+Kd 0.44 0.51 0.58
+newmtl cube-4-8
+Kd 0.02 0.87 0.06
+newmtl cube-4-9
+Kd 0.53 0.62 0.71
+newmtl cube-5-0
+Kd 0.79 0.61 0.06
+newmtl cube-5-1
+Kd 0.69 0.71 0.38
+newmtl cube-5-2
+Kd 0.85 0.94 0.47
+newmtl cube-5-3
+Kd 0.14 0.99 0.11
+newmtl cube-5-4
+Kd 0.91 0.15 0.91
+newmtl cube-5-5
+Kd 0.01 0.07 0.37
+newmtl cube-5-6
+Kd 0.27 0.09 0.51
+newmtl cube-5-7
+Kd 0.77 0.12 0.82
+newmtl cube-5-8
+Kd 0.0 0.72 0.6
+newmtl cube-5-9
+Kd 0.64 0.82 0.8
+newmtl cube-6-0
+Kd 0.32 0.4 0.65
+newmtl cube-6-1
+Kd 0.37 0.42 1.0
+newmtl cube-6-2
+Kd 0.5 0.83 0.42
+newmtl cube-6-3
+Kd 0.35 0.66 0.62
+newmtl cube-6-4
+Kd 0.88 0.13 0.25
+newmtl cube-6-5
+Kd 0.45 0.25 0.1
+newmtl cube-6-6
+Kd 0.94 0.93 0.52
+newmtl cube-6-7
+Kd 0.46 0.01 0.77
+newmtl cube-6-8
+Kd 0.5 0.3 0.43
+newmtl cube-6-9
+Kd 0.15 0.75 0.57
+newmtl cube-7-0
+Kd 0.0 0.97 0.53
+newmtl cube-7-1
+Kd 0.91 0.36 0.13
+newmtl cube-7-2
+Kd 0.55 0.54 0.4
+newmtl cube-7-3
+Kd 0.14 0.37 0.45
+newmtl cube-7-4
+Kd 0.33 0.72 0.98
+newmtl cube-7-5
+Kd 0.2 0.49 0.17
+newmtl cube-7-6
+Kd 0.08 0.46 0.86
+newmtl cube-7-7
+Kd 0.16 0.56 0.38
+newmtl cube-7-8
+Kd 0.03 0.58 0.55
+newmtl cube-7-9
+Kd 0.44 0.9 0.87
+newmtl cube-8-0
+Kd 0.71 0.17 0.64
+newmtl cube-8-1
+Kd 0.31 0.01 0.01
+newmtl cube-8-2
+Kd 0.05 0.33 0.41
+newmtl cube-8-3
+Kd 0.76 0.45 0.49
+newmtl cube-8-4
+Kd 0.43 0.18 0.96
+newmtl cube-8-5
+Kd 0.84 0.09 0.87
+newmtl cube-8-6
+Kd 0.77 0.67 0.99
+newmtl cube-8-7
+Kd 0.71 0.08 0.34
+newmtl cube-8-8
+Kd 0.55 0.69 0.07
+newmtl cube-8-9
+Kd 0.78 0.23 0.3
+newmtl cube-9-0
+Kd 0.97 0.65 0.28
+newmtl cube-9-1
+Kd 0.13 0.19 0.93
+newmtl cube-9-2
+Kd 0.44 0.99 0.06
+newmtl cube-9-3
+Kd 0.48 0.89 0.78
+newmtl cube-9-4
+Kd 0.95 0.6 0.86
+newmtl cube-9-5
+Kd 0.6 0.89 0.01
+newmtl cube-9-6
+Kd 0.82 0.88 0.35
+newmtl cube-9-7
+Kd 0.63 0.77 0.4
+newmtl cube-9-8
+Kd 0.41 0.71 0.26
+newmtl cube-9-9
+Kd 0.88 0.51 1.0

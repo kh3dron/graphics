@@ -154,7 +154,7 @@ function draw(gl, program, posX, posY, currentAngle, viewProjMatrix, model) {
   g_mvpMatrix.set(viewProjMatrix);
   g_mvpMatrix.multiply(g_modelMatrix);
 
-  g_mvpMatrix.rotate(currentAngle[0], 1.0, 0.0, 0.0); // x axis rotation
+  // g_mvpMatrix.rotate(currentAngle[0], 1.0, 0.0, 0.0); // x axis rotation: locked
   g_mvpMatrix.rotate(currentAngle[1], 0.0, 1.0, 0.0); // y axis rotation 
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 

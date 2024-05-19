@@ -1,8 +1,7 @@
-# geneate a .obj file of a cube
+# geneate a .obj file of a field of cubes!
 
 import sys
 import os
-import random
 import random
 
 
@@ -16,15 +15,18 @@ import random
 #     v2------v3
 
 
+# delete old cubesfiles
 try:
     os.remove("../resources/cubes.obj")
     os.remove("../resources/cubes.mtl")
-    print("deleted prior cube")
+    print("deleted prior cubes")
 except FileNotFoundError:
     pass
 
 with open("../resources/cubes.obj", "a") as f:
     f.write("mtllib cubes.mtl\n")
+
+# flat plane of cubes
 
 size = 0.5
 y = 0
@@ -33,9 +35,13 @@ vertices = []
 for x in range(10):
     for z in range(10):
 
-        z *= -1
+        # flip coords to extend the cubes ahead of us, not backwards
+        z *= -1 
+
+        # each cube needs a name for it's material / color
         name = "cube-{}-{}".format(str(x), str(y))
 
+        # coordinates start at the bottom edge of each cube and extend by the size
         xl = x
         xh = x + size
         yl = y
@@ -54,15 +60,19 @@ for x in range(10):
             (xl, yl, zl),
         ]
 
+        # write all the vertices in a huge list
         with open("../resources/cubes.obj", "a") as f:
             f.write("o " + name + " \n")
 
             for v in vert:
                 f.write("v {} {} {}\n".format(v[0], v[1], v[2]))
 
+
 for x in range(10):
     for y in range(10):
         name = "cube-{}-{}".format(str(x), str(y))
+
+        # face data must be offset to correctly hit each set of 8
         d = (10 * x + y) * 8
         faces = [
             (d + 0, d + 1, d + 2, d + 3),  # front
@@ -82,10 +92,11 @@ for x in range(10):
                     )
                 )
 
+        # each cube gets a random color assigned to it's name
         r = round(random.random(), 2)
         g = round(random.random(), 2)
         b = round(random.random(), 2)
-        
+
         with open("../resources/cubes.mtl", "a") as f:
             f.write("newmtl {}\n".format(name))
             f.write("Kd {} {} {}\n".format(r, g, b))

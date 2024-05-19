@@ -78,10 +78,10 @@ function main() {
   // Handle key press events
   window.addEventListener('keydown', function (ev) {
     switch (ev.key) {
-      case 'ArrowUp': posY += 10.0; break;
-      case 'ArrowDown': posY -= 10.0; break;
-      case 'ArrowLeft': posX -= 10.0; break;
-      case 'ArrowRight': posX += 10.0; break;
+      case 'w': posY += 10.0; break;
+      case 's': posY -= 10.0; break;
+      case 'a': posX -= 10.0; break;
+      case 'd': posX += 10.0; break;
       default: return;
     }
   });
@@ -125,7 +125,7 @@ function draw2d(ctx, posX, posY) {
   ctx.fillStyle = 'rgba(0, 255, 0, 1)'; // Set white to the color of letters
   ctx.fillText('Position X: ' + Math.floor(posX), 40, 40);
   ctx.fillText('Position Y: ' + Math.floor(posY), 40, 60);
-  ctx.fillText('Arrow keys to move', 40, 80);
+  ctx.fillText('Walk with WASD', 40, 80);
 }
 
 // Coordinate transformation matrix
@@ -142,7 +142,7 @@ function draw(gl, program, posX, posY, currentAngle, viewProjMatrix, model) {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);  // Clear color and depth buffers
 
-  g_modelMatrix.setTranslate(posX, posY, 0.0); // Set position
+  //g_modelMatrix.setTranslate(posX, posY, 0.0); // Set position
   // g_modelMatrix.rotate(90.0, 1.0, 0.0, 0.0); // Rotate around x-axis
 
   // Calculate the normal transformation matrix and pass it to u_NormalMatrix
@@ -152,10 +152,10 @@ function draw(gl, program, posX, posY, currentAngle, viewProjMatrix, model) {
 
   // Calculate the model view project matrix and pass it to u_MvpMatrix
   g_mvpMatrix.set(viewProjMatrix);
+  g_mvpMatrix.rotate(currentAngle[1], 0.0, 1.0, 0.0); // y axis rotation (x axis disabled)
   g_mvpMatrix.multiply(g_modelMatrix);
-
-  // g_mvpMatrix.rotate(currentAngle[0], 1.0, 0.0, 0.0); // x axis rotation: locked
-  g_mvpMatrix.rotate(currentAngle[1], 0.0, 1.0, 0.0); // y axis rotation 
+  g_mvpMatrix.translate(-posX, 0.0, posY);
+  
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 
   // Draw

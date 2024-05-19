@@ -6,7 +6,7 @@ import random
 import random
 
 
-def cube(x, y, z, size, r, g, b):
+def cube(x, y, z, size, r, g, b, name):
 
     #    PREPARE YOURSELF... FOR CUBE
     #       v6----- v5
@@ -46,16 +46,11 @@ def cube(x, y, z, size, r, g, b):
     ]
 
     # remove the file if it already exists
-    try:
-        os.remove("resources/cube.obj")
-        print("deleted prior cube")
-    except FileNotFoundError:
-        pass
+
 
     with open("../resources/cube.obj", "a") as f:
 
-        f.write("# cube.obj\n")
-        f.write("o cube\n")
+        f.write("o " + name + " \n")
 
         for v in vertices:
             f.write("v {} {} {} {} {} {} \n".format(v[0], v[1], v[2], v[3], v[4], v[5]))
@@ -68,8 +63,16 @@ def cube(x, y, z, size, r, g, b):
                 )
             )
 
+try:
+    os.remove("../resources/cube.obj")
+    print("deleted prior cube")
+except FileNotFoundError:
+    pass
+
 for x in range(10):
     for y in range(10):
-        cube(x, y, 0, .5, random.random(), random.random(), random.random())
+        name = "cube" + str(x) + str(y)
+        color = round(random.random(), 2)
+        cube(x, y, 0, .5, color, color, color, name)
 
 

@@ -3,15 +3,17 @@ var VSHADER_SOURCE =
   'attribute vec4 a_Color;\n' +
   'attribute vec4 a_Normal;\n' +
   'uniform mat4 u_MvpMatrix;\n' +
-  'uniform mat4 u_NormalMatrix;\n' +
-  'uniform vec3 u_LightColor;\n' +
-  'uniform vec3 u_AmbientLight;\n' +
+  'uniform mat4 u_ModelMatrix;\n' +    // Model matrix
+  'uniform mat4 u_NormalMatrix;\n' +   // Coordinate transformation matrix of the normal
+  'uniform vec3 u_LightColor;\n' +     // Light color
+  'uniform vec3 u_LightPosition;\n' +  // Position of the light source
+  'uniform vec3 u_AmbientLight;\n' +   // Ambient light color
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
-  '  vec3 lightDirection = vec3(-0.35, 0.35, 0.87);\n' +
   '  gl_Position = u_MvpMatrix * a_Position;\n' +
   '  vec3 normal = normalize(vec3(u_NormalMatrix * a_Normal));\n' +
-  '  vec3 lightColor = vec3(1.0, 1.0, 1.0);\n' +
+  '  vec4 vertexPosition = u_ModelMatrix * a_Position;\n' +
+  '  vec3 lightDirection = normalize(u_LightPosition - vec3(vertexPosition));\n' +
   '  float nDotL = max(dot(normal, lightDirection), 0.0);\n' +
   '  vec3 diffuse = u_LightColor * a_Color.rgb * nDotL;\n' +
   '  vec3 ambient = u_AmbientLight * a_Color.rgb;\n' +
@@ -46,6 +48,7 @@ function main() {
 
   program.a_Color = gl.getAttribLocation(program, 'a_Color');
   program.u_LightColor = gl.getUniformLocation(program, 'u_LightColor');
+  program.u_LightPosition = gl.getUniformLocation(gl.program, 'u_LightPosition');
   program.u_AmbientLight = gl.getUniformLocation(program, 'u_AmbientLight');
 
   program.u_MvpMatrix = gl.getUniformLocation(program, 'u_MvpMatrix');
@@ -57,10 +60,11 @@ function main() {
   // View projection matrix
   var viewProjMatrix = new Matrix4();
   viewProjMatrix.setPerspective(30.0, canvas.width / canvas.height, 1.0, 5000.0);
-  viewProjMatrix.lookAt(0.0, 500.0, 200.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  viewProjMatrix.lookAt(-50.0, 50.0, 200.0, 10.0, 10.0, 10.0, 0.0, 1.0, 0.0);
 
   // Set light color and ambient light color
   gl.uniform3f(program.u_LightColor, 1.0, 1.0, 1.0);
+  gl.uniform3f(program.u_LightPosition, 2.3, 4.0, 3.5);
   gl.uniform3f(program.u_AmbientLight, 0.2, 0.2, 0.2);
 
   // Start reading the OBJ file
@@ -155,7 +159,7 @@ function draw(gl, program, posX, posY, currentAngle, viewProjMatrix, model) {
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 
   // Draw
-  gl.drawElements(gl.LINES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
 function initEventHandlers(canvas, currentAngle) {
@@ -163,7 +167,6 @@ function initEventHandlers(canvas, currentAngle) {
   var lastX = -1; var lastY = -1;
 
   window.onmousedown = function (ev) {
-    console.log("click");
     var x = ev.clientX, y = ev.clientY;
     var rect = ev.target.getBoundingClientRect();
     if (rect.left <= x && x < rect.right && rect.top <= y && y < rect.bottom) {
@@ -175,7 +178,6 @@ function initEventHandlers(canvas, currentAngle) {
   window.onmouseup = function (ev) { dragging = false; };
 
   window.onmousemove = function (ev) {
-    console.log("move");
     var x = ev.clientX; var y = ev.clientY;
     if (dragging) {
       var factor = 100 / canvas.height;

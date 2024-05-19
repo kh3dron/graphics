@@ -29,16 +29,13 @@ var FSHADER_SOURCE =
   '}\n';
 
 function main() {
-  // Retrieve <canvas> element
+
   var canvas = document.getElementById('webgl');
   var hud = document.getElementById('hud');
-
-  // Get the rendering context for WebGL
   var gl = getWebGLContext(canvas);
   var ctx = hud.getContext('2d');
 
   initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)
-
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.enable(gl.DEPTH_TEST);
 
@@ -46,9 +43,11 @@ function main() {
   var program = gl.program;
   program.a_Position = gl.getAttribLocation(program, 'a_Position');
   program.a_Normal = gl.getAttribLocation(program, 'a_Normal');
+
   program.a_Color = gl.getAttribLocation(program, 'a_Color');
   program.u_LightColor = gl.getUniformLocation(program, 'u_LightColor');
   program.u_AmbientLight = gl.getUniformLocation(program, 'u_AmbientLight');
+
   program.u_MvpMatrix = gl.getUniformLocation(program, 'u_MvpMatrix');
   program.u_NormalMatrix = gl.getUniformLocation(program, 'u_NormalMatrix');
 
@@ -69,6 +68,8 @@ function main() {
 
   // Variables to store position
   var posX = 0.0, posY = 0.0;
+  var currentAngle = [0.0, 0.0]; // [x-axis, y-axis] degrees
+  initEventHandlers(canvas, currentAngle);
 
   // Handle key press events
   window.addEventListener('keydown', function (ev) {
@@ -82,7 +83,7 @@ function main() {
   });
 
   var tick = function () {
-    draw(gl, gl.program, posX, posY, viewProjMatrix, model);
+    draw(gl, gl.program, posX, posY, currentAngle, viewProjMatrix, model);
     draw2d(ctx, posX, posY); // HUD drawing
     requestAnimationFrame(tick, canvas);
   };
@@ -128,7 +129,7 @@ var g_modelMatrix = new Matrix4();
 var g_mvpMatrix = new Matrix4();
 var g_normalMatrix = new Matrix4();
 
-function draw(gl, program, posX, posY, viewProjMatrix, model) {
+function draw(gl, program, posX, posY, currentAngle, viewProjMatrix, model) {
   if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
     g_drawingInfo = onReadComplete(gl, model, g_objDoc);
     g_objDoc = null;
@@ -138,6 +139,7 @@ function draw(gl, program, posX, posY, viewProjMatrix, model) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);  // Clear color and depth buffers
 
   g_modelMatrix.setTranslate(posX, posY, 0.0); // Set position
+  // g_modelMatrix.rotate(90.0, 1.0, 0.0, 0.0); // Rotate around x-axis
 
   // Calculate the normal transformation matrix and pass it to u_NormalMatrix
   g_normalMatrix.setInverseOf(g_modelMatrix);
@@ -147,8 +149,43 @@ function draw(gl, program, posX, posY, viewProjMatrix, model) {
   // Calculate the model view project matrix and pass it to u_MvpMatrix
   g_mvpMatrix.set(viewProjMatrix);
   g_mvpMatrix.multiply(g_modelMatrix);
+
+  g_mvpMatrix.rotate(currentAngle[0], 1.0, 0.0, 0.0); // x axis rotation
+  g_mvpMatrix.rotate(currentAngle[1], 0.0, 1.0, 0.0); // y axis rotation 
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 
   // Draw
-  gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.LINES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
+}
+
+function initEventHandlers(canvas, currentAngle) {
+  var dragging = false;
+  var lastX = -1; var lastY = -1;
+
+  window.onmousedown = function (ev) {
+    console.log("click");
+    var x = ev.clientX, y = ev.clientY;
+    var rect = ev.target.getBoundingClientRect();
+    if (rect.left <= x && x < rect.right && rect.top <= y && y < rect.bottom) {
+      lastX = x; lastY = y;
+      dragging = true;
+    }
+  };
+
+  window.onmouseup = function (ev) { dragging = false; };
+
+  window.onmousemove = function (ev) {
+    console.log("move");
+    var x = ev.clientX; var y = ev.clientY;
+    if (dragging) {
+      var factor = 100 / canvas.height;
+      var dx = factor * (x - lastX);
+      var dy = factor * (y - lastY);
+
+      // limit x axis rotation to +- 90 degrees
+      currentAngle[0] = Math.max(Math.min(currentAngle[0] + dy, 90.0), -90.0);
+      currentAngle[1] = currentAngle[1] - dx;
+    }
+    lastX = x, lastY = y;
+  };
 }

@@ -31,9 +31,10 @@ with open("../resources/cubes.obj", "a") as f:
 size = 0.5
 y = 0
 vertices = []
+numCubes = 20 # cubes in 2 directions (squared)
 
-for x in range(10):
-    for z in range(10):
+for x in range(numCubes):
+    for z in range(numCubes):
 
         # flip coords to extend the cubes ahead of us, not backwards
         z *= -1 
@@ -42,10 +43,14 @@ for x in range(10):
         name = "cube-{}-{}".format(str(x), str(y))
 
         # coordinates start at the bottom edge of each cube and extend by the size
+
+        x += random.random()/10
+        z += random.random()/10
+
         xl = x
         xh = x + size
         yl = y
-        yh = y + size
+        yh = y + size + random.random()
         zl = z
         zh = z + size
 
@@ -68,12 +73,12 @@ for x in range(10):
                 f.write("v {} {} {}\n".format(v[0], v[1], v[2]))
 
 
-for x in range(10):
-    for y in range(10):
+for x in range(numCubes):
+    for y in range(numCubes):
         name = "cube-{}-{}".format(str(x), str(y))
 
         # face data must be offset to correctly hit each set of 8
-        d = (10 * x + y) * 8
+        d = (numCubes * x + y) * 8
         faces = [
             (d + 0, d + 1, d + 2, d + 3),  # front
             (d + 5, d + 0, d + 3, d + 4),  # right

@@ -60,7 +60,7 @@ function main() {
   // View projection matrix
   var viewProjMatrix = new Matrix4();
   viewProjMatrix.setPerspective(30.0, canvas.width / canvas.height, 1.0, 5000.0);
-  viewProjMatrix.lookAt(-50.0, 50.0, 200.0, 10.0, 10.0, 10.0, 0.0, 1.0, 0.0);
+  viewProjMatrix.lookAt(-50.0, 100.0, 200.0, 10.0, 10.0, 10.0, 0.0, 1.0, 0.0);
 
   // Set light color and ambient light color
   gl.uniform3f(program.u_LightColor, 1.0, 1.0, 1.0);
@@ -71,7 +71,7 @@ function main() {
   readOBJFile('../resources/cubes.obj', gl, model, 60, true);
 
   // Variables to store position
-  var posX = 0.0, posY = 0.0;
+  var posX = 0.0, posY = 0.0; posZ = 0.0;
   var currentAngle = [0.0, 0.0]; // [x-axis, y-axis] degrees
   initEventHandlers(canvas, currentAngle);
 
@@ -82,13 +82,15 @@ function main() {
       case 's': posY -= 10.0; break;
       case 'a': posX -= 10.0; break;
       case 'd': posX += 10.0; break;
+      case 'q': posZ += 10.0; break;
+      case 'e': posZ -= 10.0; break;
       default: return;
     }
   });
 
   var tick = function () {
-    draw(gl, gl.program, posX, posY, currentAngle, viewProjMatrix, model);
-    draw2d(ctx, posX, posY); // HUD drawing
+    draw(gl, gl.program, posX, posY, posZ, currentAngle, viewProjMatrix, model);
+    draw2d(ctx, posX, posY, posZ); // HUD drawing
     requestAnimationFrame(tick, canvas);
   };
   tick();
@@ -119,13 +121,14 @@ function createEmptyArrayBuffer(gl, a_attribute, num, type) {
   return buffer;
 }
 
-function draw2d(ctx, posX, posY) {
+function draw2d(ctx, posX, posY, posZ) {
   ctx.clearRect(0, 0, 400, 400); // Clear <hud>
   ctx.font = '18px "Times New Roman"';
-  ctx.fillStyle = 'rgba(0, 255, 0, 1)'; // Set white to the color of letters
+  ctx.fillStyle = 'rgba(255, 255, 255, 1)'; // Set white to the color of letters
   ctx.fillText('Position X: ' + Math.floor(posX), 40, 40);
   ctx.fillText('Position Y: ' + Math.floor(posY), 40, 60);
-  ctx.fillText('Walk with WASD', 40, 80);
+  ctx.fillText('Position Z: ' + Math.floor(posZ), 40, 80);
+  ctx.fillText('Walk with WASD', 40, 100);
 }
 
 // Coordinate transformation matrix
@@ -133,7 +136,7 @@ var g_modelMatrix = new Matrix4();
 var g_mvpMatrix = new Matrix4();
 var g_normalMatrix = new Matrix4();
 
-function draw(gl, program, posX, posY, currentAngle, viewProjMatrix, model) {
+function draw(gl, program, posX, posY, posZ, currentAngle, viewProjMatrix, model) {
   if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
     g_drawingInfo = onReadComplete(gl, model, g_objDoc);
     g_objDoc = null;
@@ -154,7 +157,7 @@ function draw(gl, program, posX, posY, currentAngle, viewProjMatrix, model) {
   g_mvpMatrix.set(viewProjMatrix);
   g_mvpMatrix.rotate(currentAngle[1], 0.0, 1.0, 0.0); // y axis rotation (x axis disabled)
   g_mvpMatrix.multiply(g_modelMatrix);
-  g_mvpMatrix.translate(-posX, 0.0, posY);
+  g_mvpMatrix.translate(-posX, posZ, posY);
   
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 

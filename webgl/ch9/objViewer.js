@@ -68,7 +68,7 @@ function main() {
   gl.uniform3f(program.u_AmbientLight, 0.2, 0.2, 0.2);
 
   // Start reading the OBJ file
-  readOBJFile('../resources/torus.obj', gl, model, 60, true);
+  readOBJFile('../resources/cubes.obj', gl, model, 60, true);
 
   // Variables to store position
   var posX = 0.0, posY = 0.0;

@@ -1,0 +1,17 @@
+mtllib cubes.mtl
+o richard 
+v 0.5 0.5 0.5
+v 0 0.5 0.5
+v 0 0 0.5
+v 0.5 0 0.5
+v 0.5 0 0
+v 0.5 0.5 0
+v 0 0.5 0
+v 0 0 0
+usemtl richard
+f 1 2 3 4
+f 6 1 4 5
+f 7 6 5 8
+f 2 3 8 7
+f 7 6 1 2
+f 4 5 8 3

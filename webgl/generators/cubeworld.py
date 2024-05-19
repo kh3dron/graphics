@@ -6,7 +6,7 @@ import random
 import random
 
 
-def cube(x, y, z, size, r, g, b, name):
+def cube(x, y, z, size, name, r, g, b):
 
     #    PREPARE YOURSELF... FOR CUBE
     #       v6----- v5
@@ -25,14 +25,14 @@ def cube(x, y, z, size, r, g, b, name):
     zh = z + size
 
     vertices = [
-        (xh, yh, zh, r, g, b),
-        (xl, yh, zh, r, g, b),
-        (xl, yl, zh, r, g, b),
-        (xh, yl, zh, r, g, b),
-        (xh, yl, zl, r, g, b),
-        (xh, yh, zl, r, g, b),
-        (xl, yh, zl, r, g, b),
-        (xl, yl, zl, r, g, b),
+        (xh, yh, zh),
+        (xl, yh, zh),
+        (xl, yl, zh),
+        (xh, yl, zh),
+        (xh, yl, zl),
+        (xh, yh, zl),
+        (xl, yh, zl),
+        (xl, yl, zl)
     ]
 
     # associate the 6 faces of the cube
@@ -48,12 +48,14 @@ def cube(x, y, z, size, r, g, b, name):
     # remove the file if it already exists
 
 
-    with open("../resources/cube.obj", "a") as f:
-
+    with open("../resources/cubes.obj", "a") as f:
+        f.write("mtllib cubes.mtl\n")
         f.write("o " + name + " \n")
 
         for v in vertices:
-            f.write("v {} {} {} {} {} {} \n".format(v[0], v[1], v[2], v[3], v[4], v[5]))
+            f.write("v {} {} {}\n".format(v[0], v[1], v[2]))
+
+        f.write("usemtl {}\n".format(name))
 
         # write the faces to the .obj file
         for face in faces:
@@ -63,16 +65,26 @@ def cube(x, y, z, size, r, g, b, name):
                 )
             )
 
+    with open("../resources/cubes.mtl", "a") as f:
+        f.write("newmtl {}\n".format(name))
+        f.write("Kd {} {} {}\n".format(r, g, b))
+
 try:
-    os.remove("../resources/cube.obj")
+    os.remove("../resources/cubes.obj")
+    os.remove("../resources/cubes.mtl")
     print("deleted prior cube")
 except FileNotFoundError:
     pass
 
-for x in range(10):
-    for y in range(10):
-        name = "cube" + str(x) + str(y)
-        color = round(random.random(), 2)
-        cube(x, y, 0, .5, color, color, color, name)
+# for x in range(10):
+#     for y in range(10):
+#         name = "cube" + str(x) + str(y)
+#         color = round(random.random(), 2)
+#         cube(x, y, 0, .5, color, color, color, name)
 
 
+r = round(random.random(), 2)
+g = round(random.random(), 2)
+b = round(random.random(), 2)
+
+cube(0, 0, 0, .5, "richard", r, g, b)

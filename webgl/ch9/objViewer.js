@@ -66,7 +66,14 @@ function main() {
 
   var viewProjMatrix = new Matrix4();
   viewProjMatrix.setPerspective(30.0, canvas.width / canvas.height, 1.0, 5000.0);
-  viewProjMatrix.lookAt(-50.0, 100.0, 200.0, 10.0, 10.0, 10.0, 0.0, 1.0, 0.0);
+
+  var eyeX = -50.0, eyeY = 100.0, eyeZ = 200.0;
+  var centerX = 10.0, centerY = 10.0, centerZ = 10.0;
+  var initialLookAngle = Math.atan2(centerZ-eyeZ, centerX-eyeX);
+  console.log(initialLookAngle * Math.PI / 180.0);
+
+  viewProjMatrix.lookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, 0.0, 1.0, 0.0);
+
 
   gl.uniform3f(program.u_LightColor, 1.0, 1.0, 1.0);
   gl.uniform3f(program.u_LightPosition, 2.3, 4.0, 3.5);
@@ -75,26 +82,42 @@ function main() {
   readOBJFile('../resources/cubes.obj', gl, model, 60, true);
 
   var posX = 0.0, posY = 0.0, posZ = 0.0;
+
   var currentAngle = [0.0, 0.0];
   initEventHandlers(canvas, currentAngle);
 
   window.addEventListener('keydown', function (ev) {
+    var rad = currentAngle[1] * Math.PI / 180.0;
+    console.log(rad);
+    var cosRad = Math.cos(rad);
+    var sinRad = Math.sin(rad);
+
     switch (ev.key) {
-      case 'w': posY += 10.0; break;
-      case 's': posY -= 10.0; break;
-      case 'a': posX -= 10.0; break;
-      case 'd': posX += 10.0; break;
-      case 'q': posZ += 10.0; break;
-      case 'e': posZ -= 10.0; break;
+      case 'w':
+        posX += sinRad * 10.0;
+        posZ -= cosRad * 10.0;
+        break;
+      case 's':
+        posX -= sinRad * 10.0;
+        posZ += cosRad * 10.0;
+        break;
+      case 'a':
+        posX -= cosRad * 10.0;
+        posZ -= sinRad * 10.0;
+        break;
+      case 'd':
+        posX += cosRad * 10.0;
+        posZ += sinRad * 10.0;
+        break;
       default: return;
     }
   });
 
   window.addEventListener('wheel', function (ev) {
     if (ev.deltaY < 0) {
-      posZ += 10.0;
+      posY -= 10.0; // Zoom in
     } else {
-      posZ -= 10.0;
+      posY += 10.0; // Zoom out
     }
   });
 
@@ -153,9 +176,10 @@ function draw(gl, program, posX, posY, posZ, currentAngle, viewProjMatrix, model
   gl.uniformMatrix4fv(program.u_NormalMatrix, false, g_normalMatrix.elements);
 
   g_mvpMatrix.set(viewProjMatrix);
+  // g_mvpMatrix.rotate(currentAngle[0], 1.0, 0.0, 0.0);
   g_mvpMatrix.rotate(currentAngle[1], 0.0, 1.0, 0.0);
   g_mvpMatrix.multiply(g_modelMatrix);
-  g_mvpMatrix.translate(-posX, posZ, posY);
+  g_mvpMatrix.translate(-posX, posY, -posZ);
 
   gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
 

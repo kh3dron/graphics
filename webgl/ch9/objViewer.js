@@ -79,7 +79,7 @@ function main() {
   gl.uniform3f(program.u_LightPosition, 2.3, 4.0, 3.5);
   gl.uniform3f(program.u_AmbientLight, 0.2, 0.2, 0.2);
 
-  readOBJFile('../resources/cubes.obj', gl, model, 60, true);
+  readOBJFile('../resources/tree.obj', gl, model, 60, true);
 
   var posX = 0.0, posY = 0.0, posZ = 0.0;
 

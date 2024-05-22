@@ -1,0 +1,4 @@
+newmtl TrunkMaterial
+Kd 0.36 0.25 0.20
+newmtl LeafMaterial
+Kd 0.0 0.5 0.0

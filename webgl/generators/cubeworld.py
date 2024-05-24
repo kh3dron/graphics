@@ -44,9 +44,6 @@ for x in range(numCubes):
 
         # coordinates start at the bottom edge of each cube and extend by the size
 
-        x += random.random()/10
-        z += random.random()/10
-
         xl = x
         xh = x + size
         yl = y

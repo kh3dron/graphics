@@ -79,7 +79,7 @@ function main() {
   gl.uniform3f(program.u_LightPosition, 2.3, 4.0, 3.5);
   gl.uniform3f(program.u_AmbientLight, 0.2, 0.2, 0.2);
 
-  readOBJFile('../resources/tree.obj', gl, model, 60, true);
+  readOBJFile('../resources/cubes.obj', gl, model, 60, true);
 
   var posX = 0.0, posY = 0.0, posZ = 0.0;
 
@@ -123,7 +123,7 @@ function main() {
 
   function tick() {
     draw(gl, gl.program, posX, posY, posZ, currentAngle, viewProjMatrix, model);
-    draw2d(ctx, posX, posY, posZ);
+    draw2d(ctx, posX, posY, posZ, currentAngle);
     requestAnimationFrame(tick);
   }
   tick();
@@ -148,14 +148,15 @@ function createEmptyArrayBuffer(gl, a_attribute, num, type) {
   return buffer;
 }
 
-function draw2d(ctx, posX, posY, posZ) {
+function draw2d(ctx, posX, posY, posZ, currentAngle) {
   ctx.clearRect(0, 0, 400, 400);
   ctx.font = '18px "Times New Roman"';
   ctx.fillStyle = 'rgba(255, 255, 255, 1)';
   ctx.fillText('Position X: ' + Math.floor(posX), 40, 40);
   ctx.fillText('Position Y: ' + Math.floor(posY), 40, 60);
   ctx.fillText('Position Z: ' + Math.floor(posZ), 40, 80);
-  ctx.fillText('Walk with WASD', 40, 100);
+  ctx.fillText('Current Angle: ' + Math.floor(currentAngle[1]), 40, 100);
+  ctx.fillText('Walk with WASD', 40, 120);
 }
 
 var g_modelMatrix = new Matrix4();
